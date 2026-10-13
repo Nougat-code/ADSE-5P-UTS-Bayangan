@@ -12,13 +12,15 @@
 <nav>
     <a href="<c:url value='/'/>">Beranda</a> |
     <a href="<c:url value='/john'/>">Program Gaji John Travolta</a> |
-    <a href="<c:url value='/kuadrat'/>">Program Persamaan Kuadrat</a>
+    <a href="<c:url value='/kuadrat'/>">Program Persamaan Kuadrat</a> |
+    <a href="<c:url value='/pengajuan-izin'/>">Pengajuan Izin Mahasiswa</a>
 </nav>
 <hr>
 <p>Pilih program yang ingin digunakan:</p>
 <ul>
     <li><a href="<c:url value='/john'/>">Kalkulator gaji John Travolta</a></li>
     <li><a href="<c:url value='/kuadrat'/>">Kalkulator persamaan kuadrat</a></li>
+    <li><a href="<c:url value='/pengajuan-izin'/>">Pengajuan izin mahasiswa</a></li>
 </ul>
 </body>
 </html>

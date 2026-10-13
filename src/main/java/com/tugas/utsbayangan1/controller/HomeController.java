@@ -1,6 +1,7 @@
 package com.tugas.utsbayangan1.controller;
 
 import com.tugas.utsbayangan1.service.CalculatorService;
+import com.tugas.utsbayangan1.service.PengajuanIzinService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +22,12 @@ public class HomeController {
             "weeklyExpenses", "600000");
 
     private final CalculatorService calculatorService;
+    private final PengajuanIzinService pengajuanIzinService;
 
-    public HomeController(CalculatorService calculatorService) {
+    public HomeController(
+            CalculatorService calculatorService, PengajuanIzinService pengajuanIzinService) {
         this.calculatorService = calculatorService;
+        this.pengajuanIzinService = pengajuanIzinService;
     }
 
     @GetMapping("/")
@@ -123,6 +127,45 @@ public class HomeController {
         model.addAttribute("rootOne", result.rootOne());
         model.addAttribute("rootTwo", result.rootTwo());
         return "kuadrat";
+    }
+
+    @GetMapping("/pengajuan-izin")
+    public String pengajuanIzin(Model model) {
+        model.addAttribute("days", "");
+        model.addAttribute("studentName", "");
+        model.addAttribute("reason", "");
+        return "pengajuan-izin";
+    }
+
+    @PostMapping("/pengajuan-izin")
+    public String submitPengajuanIzin(
+            @RequestParam(defaultValue = "") String studentName,
+            @RequestParam(defaultValue = "") String reason,
+            @RequestParam(defaultValue = "") String days,
+            Model model) {
+        model.addAttribute("studentName", studentName);
+        model.addAttribute("reason", reason);
+        model.addAttribute("days", days);
+
+        try {
+            int requestedDays = Integer.parseInt(days.trim());
+            if (requestedDays <= 0) {
+                model.addAttribute("error", "Lama izin harus lebih besar dari 0 hari.");
+                return "pengajuan-izin";
+            }
+            if (studentName.isBlank() || reason.isBlank()) {
+                model.addAttribute("error", "Nama mahasiswa dan alasan wajib diisi.");
+                return "pengajuan-izin";
+            }
+
+            PengajuanIzinService.Decision decision =
+                    pengajuanIzinService.submit(studentName.trim(), reason.trim(), requestedDays);
+            model.addAttribute("status", decision.status());
+            model.addAttribute("message", decision.message());
+        } catch (NumberFormatException exception) {
+            model.addAttribute("error", "Lama izin harus berupa bilangan bulat.");
+        }
+        return "pengajuan-izin";
     }
 
     private BigDecimal parseNumber(String label, String value, List<String> errors) {
