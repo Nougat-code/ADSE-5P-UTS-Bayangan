@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+             targetNamespace="http://utsbayangan1.tugas.com/pengajuan-izin">
+  <process id="pengajuanIzin" name="Pengajuan Izin Mahasiswa" isExecutable="true"
+           camunda:historyTimeToLive="180">
+    <startEvent id="startPengajuan" name="Pengajuan diterima">
+      <outgoing>flowStartToValidate</outgoing>
+    </startEvent>
+    <sequenceFlow id="flowStartToValidate" sourceRef="startPengajuan" targetRef="validatePengajuan"/>
+    <serviceTask id="validatePengajuan" name="Validasi pengajuan"
+                 camunda:delegateExpression="${pengajuanIzinDelegate}">
+      <incoming>flowStartToValidate</incoming>
+      <outgoing>flowValidateToDecision</outgoing>
+    </serviceTask>
+    <sequenceFlow id="flowValidateToDecision" sourceRef="validatePengajuan" targetRef="decisionDays"/>
+    <exclusiveGateway id="decisionDays" name="Lama izin maksimal 3 hari?">
+      <incoming>flowValidateToDecision</incoming>
+      <outgoing>flowApproved</outgoing>
+      <outgoing>flowRejected</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="flowApproved" name="days &lt;= 3" sourceRef="decisionDays" targetRef="approvedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${days &lt;= 3}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flowRejected" name="days &gt; 3" sourceRef="decisionDays" targetRef="rejectedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${days &gt; 3}</conditionExpression>
+    </sequenceFlow>
+    <endEvent id="approvedEnd" name="APPROVED">
+      <incoming>flowApproved</incoming>
+    </endEvent>
+    <endEvent id="rejectedEnd" name="REJECTED">
+      <incoming>flowRejected</incoming>
+    </endEvent>
+  </process>
+</definitions>
